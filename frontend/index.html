@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head><title>MTU Corp - Solvabilite partenaire</title></head>
+<body>
+
+<h1>MTU Corp - Evaluation de solvabilite</h1>
+
+<label>Revenu annuel :
+    <input type="number" id="revenu" value="35000">
+</label><br>
+
+<label>Nombre de prets en cours :
+    <input type="number" id="prets" value="2">
+</label><br>
+
+<label>Jours de retard cumules :
+    <input type="number" id="retard" value="12">
+</label><br>
+
+<label>Historique de credit :
+    <select id="historique">
+        <option value="Mauvais">Mauvais</option>
+        <option value="Standard">Standard</option>
+        <option value="Bon">Bon</option>
+    </select>
+</label><br>
+
+<button onclick="predire()">Evaluer</button>
+
+<p id="resultat"></p>
+
+<h2>Historique</h2>
+
+<button onclick="chargerHistorique()">Voir l'historique</button>
+
+<ul id="historiqueListe"></ul>
+
+<script src="app.js"></script>
+
+</body>
+</html>
