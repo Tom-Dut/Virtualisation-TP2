@@ -1,6 +1,19 @@
-const API_BASE = "http://localhost:5000";
+const API_BASES = [
+    "http://localhost:5000",
+    "http://localhost:5001"
+];
+
+let backendSuivant = 0;
+
+function choisirBackend() {
+    const api = API_BASES[backendSuivant];
+    backendSuivant = (backendSuivant + 1) % API_BASES.length;
+    return api;
+}
 
 async function predire() {
+    const API_BASE = choisirBackend();
+
     const revenu = document.getElementById("revenu").value;
     const prets = document.getElementById("prets").value;
     const retard = document.getElementById("retard").value;
@@ -17,6 +30,8 @@ async function predire() {
 }
 
 async function chargerHistorique() {
+    const API_BASE = choisirBackend();
+    
     const reponse = await fetch(API_BASE + "/api/historique");
     const lignes = await reponse.json();
 

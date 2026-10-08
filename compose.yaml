@@ -1,0 +1,96 @@
+
+services:
+
+  db:
+    image: postgres:16
+    restart: on-failure
+    environment:
+      POSTGRES_DB: mtudb
+      POSTGRES_USER: mtu
+      POSTGRES_PASSWORD: motdepasse
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro,Z
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mtu -d mtudb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  cache:
+    image: redis:7-alpine
+    restart: on-failure
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Containerfile
+    image: localhost/mtu-ml-backend:1.0
+    restart: on-failure
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: db
+      DB_NAME: mtudb
+      DB_USER: mtu
+      DB_PASSWORD: motdepasse
+      CACHE_HOST: cache
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health')"
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  
+  backend2:
+    build:
+      context: .
+      dockerfile: backend/Containerfile
+    image: localhost/mtu-ml-backend:1.0
+    restart: on-failure
+    ports:
+      - "5001:5000"
+    environment:
+      DB_HOST: db
+      DB_NAME: mtudb
+      DB_USER: mtu
+      DB_PASSWORD: motdepasse
+      CACHE_HOST: cache
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health')"
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Containerfile
+    image: localhost/mtu-ml-frontend:1.0
+    restart: on-failure
+    ports:
+      - "8080:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  db_data:
